@@ -100,7 +100,7 @@ const money = n => `$${Number(n).toFixed(2)}`;
 const panelEmbed = () =>
   new EmbedBuilder()
     .setTitle(`${STORE_NAME} — Ticket Panel`)
-    .setDescription("Open a ticket to order or get support.\n\n✅ Fast delivery\n✅ Secure payments (Crypto/Stripe)\n✅ Invoice PDF after delivery")
+    .setDescription("Open a ticket to order.\n\n✅ Fast delivery\n✅ Secure payments (Crypto/Stripe)\n✅ Invoice PDF after delivery")
     .setFooter({ text: "Click Open Ticket" });
 
 const welcomeEmbed = user =>
