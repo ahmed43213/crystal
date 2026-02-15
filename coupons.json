@@ -1,0 +1,4 @@
+[
+  { "code": "SAVE5", "type": "fixed", "value": 5, "uses": 0, "maxUses": 20, "active": true, "createdAt": "2026-02-15T00:00:00.000Z" },
+  { "code": "OFF10", "type": "percent", "value": 10, "uses": 0, "maxUses": 0, "active": true, "createdAt": "2026-02-15T00:00:00.000Z" }
+]
