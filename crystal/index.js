@@ -522,10 +522,10 @@ client.on(Events.InteractionCreate, async (i) => {
         permissionOverwrites: overwrites,
       });
 
+      // 1) Welcome
       await ticket.send({ embeds: [welcomeEmbed(i.user)] });
-      await ticket.send({ content: "Have a discount code? Apply it here:", components: [couponRow()] });
 
-      // product buttons
+      // 2) Products buttons
       const rows = [];
       let row = new ActionRowBuilder();
       let count = 0;
@@ -548,7 +548,9 @@ client.on(Events.InteractionCreate, async (i) => {
       if (count) rows.push(row);
 
       await ticket.send({ embeds: [productsEmbed()], components: rows });
-      await ticket.send({ content: "You can also apply a coupon before paying:", components: [couponRow()] });
+
+      // 3) ✅ Coupon message ONCE only (after welcome + products)
+      await ticket.send({ content: "Have a discount code? Apply it here:", components: [couponRow()] });
 
       await i.reply({ content: `✅ Ticket created: <#${ticket.id}>`, ephemeral: true });
       return;
@@ -597,11 +599,19 @@ client.on(Events.InteractionCreate, async (i) => {
             original: Number(prod.price),
             discount: r.discount,
             total: r.total,
-            coupon: { code: coupon.code, type: coupon.type, value: coupon.value, maxUses: coupon.maxUses, uses: coupon.uses },
+            coupon: {
+              code: coupon.code,
+              type: coupon.type,
+              value: coupon.value,
+              maxUses: coupon.maxUses,
+              uses: coupon.uses,
+            },
             couponUsedMarked: false,
           };
           clearPendingCoupon(i.channelId); // apply once to the next chosen product
-          await i.channel.send(`🏷️ Coupon **${coupon.code}** applied to this order. New total: **$${r.total.toFixed(2)}**`);
+          await i.channel.send(
+            `🏷️ Coupon **${coupon.code}** applied to this order. New total: **$${r.total.toFixed(2)}**`
+          );
         } else {
           clearPendingCoupon(i.channelId);
         }
@@ -610,8 +620,16 @@ client.on(Events.InteractionCreate, async (i) => {
       upsertOrder(order);
 
       const payRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId(`pay_crypto:${orderId}`).setLabel("Crypto").setEmoji("🪙").setStyle(ButtonStyle.Success),
-        new ButtonBuilder().setCustomId(`pay_stripe:${orderId}`).setLabel("Stripe").setEmoji("💳").setStyle(ButtonStyle.Primary)
+        new ButtonBuilder()
+          .setCustomId(`pay_crypto:${orderId}`)
+          .setLabel("Crypto")
+          .setEmoji("🪙")
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+          .setCustomId(`pay_stripe:${orderId}`)
+          .setLabel("Stripe")
+          .setEmoji("💳")
+          .setStyle(ButtonStyle.Primary)
       );
 
       await i.channel.send({ embeds: [paymentMethodsEmbed(prod, order)], components: [payRow] });
@@ -639,7 +657,13 @@ client.on(Events.InteractionCreate, async (i) => {
 
       upsertOrder({
         ...order,
-        payment: { ...order.payment, method: "crypto", provider: "cryptomus", url: inv.url, transactionId: inv.uuid },
+        payment: {
+          ...order.payment,
+          method: "crypto",
+          provider: "cryptomus",
+          url: inv.url,
+          transactionId: inv.uuid,
+        },
       });
 
       const linkRow = new ActionRowBuilder().addComponents(
@@ -674,7 +698,13 @@ client.on(Events.InteractionCreate, async (i) => {
 
       upsertOrder({
         ...order,
-        payment: { ...order.payment, method: "stripe", provider: "stripe", url: session.url, transactionId: session.id },
+        payment: {
+          ...order.payment,
+          method: "stripe",
+          provider: "stripe",
+          url: session.url,
+          transactionId: session.id,
+        },
       });
 
       const linkRow = new ActionRowBuilder().addComponents(
